@@ -91,5 +91,6 @@ IMAGE_INSTALL:append:mpfs-video-kit = " \
     sudo \
     v4l2-start-service \
     videokit-webdemo \
+    boost \
     "
 
