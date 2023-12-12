@@ -1,0 +1,82 @@
+diff --git a/mpfs-sev-kit-fabric.dtsi b/mpfs-sev-kit-fabric.dtsi
+index 4d80b05..7ae6ab6 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
++++ b/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
+@@ -14,7 +14,15 @@
+ 		compatible = "gpio-gate-clock";
+ 		clocks = <&imx334_clk>;
+ 		#clock-cells = <0>;
+-		enable-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>;
++		enable-gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
++		status = "okay";
++	};
++
++	imx334_gate_clock1: imx334-gate-clock1 {
++		compatible = "gpio-gate-clock";
++		clocks = <&imx334_clk>;
++		#clock-cells = <0>;
++		enable-gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
+ 		status = "okay";
+ 	};
+ 
+@@ -40,11 +48,14 @@
+ 		cambuf0: buffer@C0000000 {
+ 			reg = <0x0 0xC0000000 0x0 0x1FFFFFF>;
+ 		};
++		cambuf1: buffer@C2000000 {
++			reg = <0x0 0xC2000000 0x0 0x1FFFFFF>;
++		};
+ 	};
+ 
+ 	mchp_dscmi_cam0: video-pipeline@40000000 {
+ 		compatible = "microchip,fpga-dscmi";
+-		reg = <0x0 0x40000000 0x0 0x2000>;
++		reg = <0x0 0x40000000 0x0 0x1FFF>;
+ 		interrupt-parent = <&plic>;
+ 		interrupts = <118>;
+ 		reset-gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
+@@ -57,6 +68,22 @@
+ 			};
+ 		};
+ 	};
++
++	mchp_dscmi_cam1: video-pipeline@40002000 {
++		compatible = "microchip,fpga-dscmi";
++		reg = <0x0 0x40002000 0x0 0x1FFF>;
++		interrupt-parent = <&plic>;
++		interrupts = <119>;
++		reset-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>;
++		memory-region = <&cambuf1>;
++		dmas = <&pdma 1>;
++		dma-names = "rx";
++		port {
++			mchp_dscmi_ep_cam1: endpoint {
++				remote-endpoint = <&imx334_ep_cam1>;
++			};
++		};
++	};
+ };
+ 
+ &i2c0 {
+@@ -76,3 +103,21 @@
+ 		};
+ 	};
+ };
++
++&i2c1 {
++	imx334_cam1: camera@10 {
++		compatible = "sony,imx334";
++		reset-gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
++		clocks = <&imx334_gate_clock1>;
++		assigned-clocks = <&imx334_gate_clock1>;
++		assigned-clock-rates = <24000000>;
++		reg = <0x10>;
++		port {
++			imx334_ep_cam1: endpoint {
++				remote-endpoint = <&mchp_dscmi_ep_cam1>;
++				data-lanes = <1 2 3 4>;
++				link-frequencies = /bits/ 64 <891000000>;
++			};
++		};
++	};
++};

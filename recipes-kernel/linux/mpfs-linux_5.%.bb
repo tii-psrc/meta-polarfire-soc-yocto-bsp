@@ -25,6 +25,9 @@ SRC_URI:append:m100pfsevp = "file://m100pfsevp_configs.cfg"
 SRC_URI:append:mpfs-video-kit = " \
     file://bsp_cmdline.cfg \
     file://mpfs-v4l2.cfg \
+    file://0001-add-i2c1-dts.patch \
+    file://0003-add-mybuf0-res-mem.patch \
+    file://0005-disable_cam1.patch \
 "
 
 do_deploy:append() {

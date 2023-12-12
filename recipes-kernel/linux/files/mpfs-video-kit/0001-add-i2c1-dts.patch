@@ -1,0 +1,15 @@
+diff --git a/mpfs-sev-kit-original.dts b/mpfs-sev-kit.dts
+index ef59eff..94b7a81 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-sev-kit.dts
++++ b/arch/riscv/boot/dts/microchip/mpfs-sev-kit.dts
+@@ -135,6 +135,10 @@
+ 	status = "okay";
+ };
+ 
++&i2c1 {
++	status = "okay";
++};
++
+ &mac0 {
+ 	status = "okay";
+ 	phy-mode = "sgmii";

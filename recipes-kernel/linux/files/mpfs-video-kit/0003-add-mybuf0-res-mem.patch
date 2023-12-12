@@ -1,0 +1,16 @@
+diff --git a/mpfs-sev-kit-fabric.dtsi b/mpfs-sev-kit-fabric.dtsi
+index 4d80b05..e3d4d24 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
++++ b/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
+@@ -40,6 +40,11 @@
+ 		cambuf0: buffer@C0000000 {
+ 			reg = <0x0 0xC0000000 0x0 0x1FFFFFF>;
+ 		};
++
++		mybuf0: buffer@C2000000 {
++			reg = <0x0 0xC2000000 0x0 0x5FFFFFF>;
++			no-map;
++		};
+ 	};
+ 
+ 	mchp_dscmi_cam0: video-pipeline@40000000 {

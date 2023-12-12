@@ -1,0 +1,32 @@
+diff --git a/mpfs-sev-kit-fabric.dtsi b/mpfs-sev-kit-fabric.dtsi
+index 4d80b05..70aa4f3 100644
+--- a/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
++++ b/arch/riscv/boot/dts/microchip/mpfs-sev-kit-fabric.dtsi
+@@ -21,7 +21,7 @@
+ 	fabric_clk3: fabric-clk3 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+-		clock-frequency = <0>;
++		clock-frequency = <50000000>;
+ 	};
+ 
+ 	fabric_clk1: fabric-clk1 {
+@@ -57,6 +57,18 @@
+ 			};
+ 		};
+ 	};
++
++	i2c2: i2c@40002000 {
++		compatible = "microchip,corei2c-rtl-v7";
++		reg = <0x0 0x40002000 0x0 0x100>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		clocks = <&fabric_clk3>;
++		interrupt-parent = <&plic>;
++		interrupts = <119>;
++		clock-frequency = <100000>;
++		status = "okay";
++	};
+ };
+ 
+ &i2c0 {
