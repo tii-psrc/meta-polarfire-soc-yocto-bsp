@@ -72,13 +72,8 @@ export BASH_SOURCE="openembedded-core/oe-init-build-env"
 # add the missing layers
 echo "Adding layers"
 bitbake-layers add-layer ../meta-openembedded/meta-oe
-bitbake-layers add-layer ../meta-openembedded/meta-python
-bitbake-layers add-layer ../meta-openembedded/meta-multimedia
-bitbake-layers add-layer ../meta-openembedded/meta-networking
-bitbake-layers add-layer ../meta-openembedded/meta-webserver
 bitbake-layers add-layer ../meta-polarfire-soc-yocto-bsp/meta-polarfire-soc-bsp
-bitbake-layers add-layer ../meta-polarfire-soc-yocto-bsp/meta-polarfire-soc-community
-bitbake-layers add-layer ../meta-polarfire-soc-yocto-bsp/meta-polarfire-soc-extras
+bitbake-layers add-layer ../meta-polarfire-soc-yocto-bsp/meta-polarfire-soc-bsp-scai
 
 
 # fix the configuration
@@ -132,6 +127,8 @@ echo ""
 echo "Buildable machine info"
 echo "---------------------------------------------------"
 echo " Default MACHINE=${MACHINE}"
+echo "* scai-navc: SCAI Navigation Computer (NAVC)"
+echo "* scai-dpu: SCAI Data Processing Unit (DPU)"
 echo "* icicle-kit-es: Microchip Polarfire SoC Icicle Kit Engineering Sample"
 echo "* icicle-kit-es-amp: Microchip Polarfire SoC Icicle Kit Engineering Sample in AMP mode"
 echo "* icicle-kit-es-auth: Microchip Polarfire SoC Icicle Kit Engineering Sample in authenticated boot mode"

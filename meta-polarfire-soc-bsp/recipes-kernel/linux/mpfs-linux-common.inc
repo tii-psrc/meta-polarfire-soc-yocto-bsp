@@ -14,7 +14,7 @@ PV = "${LINUX_VERSION}+git${SRCPV}"
 
 KCONFIG_MODE="--alldefconfig"
 
-COMPATIBLE_MACHINE = "(icicle-kit|mpfs-video-kit|mpfs-disco-kit)"
+COMPATIBLE_MACHINE = "(icicle-kit|mpfs-video-kit|mpfs-disco-kit|scai-navc|scai-dpu)"
 
 KERNEL_DTBVENDORED = "1"
 
