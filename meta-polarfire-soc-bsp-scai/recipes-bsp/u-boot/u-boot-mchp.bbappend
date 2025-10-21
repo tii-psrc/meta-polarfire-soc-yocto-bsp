@@ -13,3 +13,7 @@ SRC_URI:append:scai-dpu   = "file://${UBOOT_ENV}.cmd \
                              file://${MACHINE}.cfg \
                              file://uEnv.txt \
                             "
+
+do_configure:append () {
+    ln -sf "${B}/${config}/.config" "${B}/.config"
+}
