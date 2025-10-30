@@ -4,7 +4,14 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI:append:scai-navc = " file://qspi_flash.cfg \
                             "
 
-COMPATIBLE_MACHINE:scai-navc = "scai-navc"
+SRC_URI:append:scai-dpu = " file://qspi_flash.cfg \
+                            "
+
+# we overwrite this variable that comes from MCHP BSP bb file
+COMPATIBLE_MACHINE = "(icicle-kit|mpfs-video-kit|mpfs-disco-kit|scai-navc|scai-dpu)"
+
+
+
 
 do_configure:prepend () {
     # issue with using ${config} variable with devtool modify
