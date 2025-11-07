@@ -1,5 +1,9 @@
 # Install machine-specific /etc/issue file
 
+# ICICLE
+FILESEXTRAPATHS:prepend:icicle-kit-es-nand := "${THISDIR}/${PN}/:icicle-kit-es-nand"
+SRC_URI:append:icicle-kit-es-nand = " file://issue-scai"
+
 
 # NAVC
 FILESEXTRAPATHS:prepend:scai-navc := "${THISDIR}/${PN}/growfs:"
