@@ -49,3 +49,5 @@ do_install_myfilesissue_scai () {
 }
 
 
+# Custom issue file installation for SpacecraftAI
+BASEFILESISSUEINSTALL = "do_install_myfilesissue_scai"
