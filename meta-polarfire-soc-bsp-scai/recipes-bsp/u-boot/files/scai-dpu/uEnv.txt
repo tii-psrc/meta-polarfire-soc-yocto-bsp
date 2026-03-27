@@ -13,7 +13,7 @@ kernel_addr_r=0x80200000
 loadaddr=0x80200000
 mtdparts=spi-nand1:2m(payload_b),119m(ubi_b);spi-nand0:2m(payload_a),119m(ubi_a)
 ramdisk_addr_r=0x8aa00000
-get_inactive=if test "${active_slot}" = "a"; then inactive_slot=b; else inactive_slot=a; fi
+get_inactive=if test "${active_slot}" = "a"; then inactive_slot=b; else inactive_slot=a; fi; setenv active_slot ${inactive_slot};
 boot_scripts=boot.scr
 scriptaddr=0x8e000000
 boot_a_script=load ${devtype} ${devnum}:${distro_bootpart} ${scriptaddr} ${prefix}${script}; source ${scriptaddr}
@@ -23,8 +23,8 @@ scan_dev_for_boot=echo Scanning ${devtype} ${devnum}:${distro_bootpart}...; for 
 ubifs_boot=if ubi part ${bootubipart} ${bootubioff} && ubifsmount ubi0:${bootubivol}; then devtype=ubi; devnum=ubi0; bootfstype=ubifs; distro_bootpart=${bootubivol}; run scan_dev_for_boot; ubifsumount; fi
 bootcmd_ubifs_slot=echo Booting slot ${slot}; bootubipart=ubi_${slot}; bootubivol=rootfs; bootubioff=; run ubifs_boot;
 default_active_slot=a
-ensure_active_slot=if env exists active_slot; then echo "Using active_slot from HSS: ${active_slot}"; else echo "active_slot not set, using default"; active_slot=${default_active_slot}; fi; if test "${active_slot}" != "a" && test "${active_slot}" != "b"; then echo "active_slot invalid, using default"; active_slot=${default_active_slot}; fi
-bootcmd_ubifs=run ensure_active_slot; run set_bootargs; echo === [BOOT] ACTIVE SLOT:${active_slot} ===; slot=${active_slot}; run bootcmd_ubifs_slot; echo === [BOOT] FAILOVER ===; run get_inactive; slot=${inactive_slot}; run bootcmd_ubifs_slot;
+ensure_active_slot=if env exists active_slot; then echo "Using active_slot from HSS: ${active_slot}"; else echo "active_slot not set, using default"; setenv active_slot ${default_active_slot}; fi; if test "${active_slot}" != "a" && test "${active_slot}" != "b"; then echo "active_slot invalid, using default"; setenv active_slot ${default_active_slot}; fi
+bootcmd_ubifs=run ensure_active_slot; run set_bootargs; echo === [BOOT] ACTIVE SLOT:${active_slot} ===; slot=${active_slot}; run bootcmd_ubifs_slot; echo === [BOOT] FAILOVER ===; run get_inactive; run set_bootargs; slot=${inactive_slot}; run bootcmd_ubifs_slot;
 boot_targets=ubifs
 distro_bootcmd=for target in ${boot_targets}; do run bootcmd_${target}; done
 bootcmd=run distro_bootcmd
