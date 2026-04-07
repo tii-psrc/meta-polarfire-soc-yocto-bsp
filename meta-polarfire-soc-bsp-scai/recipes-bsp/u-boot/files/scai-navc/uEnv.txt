@@ -11,7 +11,7 @@ fdt_addr_r=0x8a000000
 fdtoverlay_addr_r=0x8a080000
 kernel_addr_r=0x80200000
 loadaddr=0x80200000
-mtdparts=spi-nand1:2m(payload_b),119m(ubi_b);spi-nand0:2m(payload_a),119m(ubi_a)
+mtdparts=spi-nand1:2m(payload_e),119m(ubi_e);spi-nand0:2m(payload_a),30m(ubi_a),2m(payload_b),30m(ubi_b),2m(payload_c),30m(ubi_c),2m(payload_d),30m(ubi_d)
 ramdisk_addr_r=0x8aa00000
 get_inactive=if test "${active_slot}" = "a"; then inactive_slot=b; else inactive_slot=a; fi; setenv active_slot ${inactive_slot};
 boot_scripts=boot.scr

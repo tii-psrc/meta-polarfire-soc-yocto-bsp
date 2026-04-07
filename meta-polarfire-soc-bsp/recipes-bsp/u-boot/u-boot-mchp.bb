@@ -9,7 +9,8 @@ DEPENDS += "coreutils-native"
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=2ca5f2c35c8cc335f0a19756634782f1"
 
 PV = "v2023.07-mchp+git${SRCPV}"
-SRCREV = "psrc2025"
+#SRCREV = "psrc2025"
+SRCREV = "psrc2025_multi_boot"
 SRC_URI = "git://github.com/tii-psrc/u-boot-mchp.git;protocol=https;nobranch=1  \
            file://${HSS_PAYLOAD}.yaml \
            "

@@ -2,7 +2,7 @@
 set -eu
 
 MTD_NAME_ARRAY=("scai_mtd_a" "scai_mtd_b")
-VOL_NAME_ARRAY=("scai_mtd_a" "scai_mtd_b")
+VOL_NAME_ARRAY=("rootfs" "rootfs")
 MOUNT_POINT_ARRAY=("/opt/scai_mtd_a" "/opt/scai_mtd_b")
 
 log() {

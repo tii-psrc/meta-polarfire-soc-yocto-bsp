@@ -3,7 +3,7 @@ require recipes-kernel/linux/mpfs-linux-common.inc
 LINUX_VERSION ?= "6.6"
 KERNEL_VERSION_SANITY_SKIP="1"
 
-SRCREV="psrc2025"
+SRCREV="psrc2025_multi_boot"
 SRC_URI = " \
     git://github.com/tii-psrc/linux.git;protocol=https;nobranch=1 \
 "
