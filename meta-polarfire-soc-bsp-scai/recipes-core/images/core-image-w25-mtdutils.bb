@@ -56,7 +56,8 @@ copy_bundle_fitimage_to_rootfs() {
     ln -snf ${FITIMAGE} ${TARGET_ROOTFS_PATH}fitImage 
 
     install -m 0644 ${DEPLOY_DIR_IMAGE}/payload.bin ${TARGET_ROOTFS_PATH}
-		sha1sum ${TARGET_ROOTFS_PATH}/payload.bin > ${TARGET_ROOTFS_PATH}/payload.bin.sha1
+    cd ${TARGET_ROOTFS_PATH}
+    sha1sum payload.bin > payload.bin.sha1
 }
 
 do_rootfs[postfuncs] += "nuke_rootfs copy_bundle_fitimage_to_rootfs"
