@@ -51,6 +51,7 @@ do_install_myfilesissue_scai () {
 		echo >> ${D}${sysconfdir}/issue.net
  	fi
 }
+do_install_myfilesissue_scai[vardepsexclude] += "DATE"
 
 
 # Custom issue file installation for SpacecraftAI
