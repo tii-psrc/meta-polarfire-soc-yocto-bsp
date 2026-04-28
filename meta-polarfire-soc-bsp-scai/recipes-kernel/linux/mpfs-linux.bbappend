@@ -6,7 +6,6 @@ SRC_URI:append:scai-navc = " file://qspi_flash.cfg \
 
 SRC_URI:append:scai-dpu = " file://qspi_flash.cfg \
                             file://uio.cfg \
-                            file://iwave.cfg \
                             "
 
 # we overwrite this variable that comes from MCHP BSP bb file
