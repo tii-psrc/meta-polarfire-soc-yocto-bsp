@@ -46,7 +46,9 @@ do_rootfs[postfuncs] += "remove_boot_dir"
 # remove unwanted image types
 #IMAGE_TYPES_remove = "mtd ubimg"
 
-MKUBIFS_ARGS = " -e 516096 -c 7530 -m 4096 -x zlib -F"
+#MKUBIFS_ARGS = " -e 516096 -c 7530 -m 4096 -x zlib -F"
+#MKUBIFS_ARGS = " -e 516096 -c 7530 -m 4096 -x none -F"
+MKUBIFS_ARGS = " -e 516096 -c 7530 -m 4096 -x lzo -F"
 UBINIZE_ARGS = " -m 4096 -p 512KiB -s 4096"
 
 IMAGE_FSTYPES = "ubifs rootfs-ubimg"
