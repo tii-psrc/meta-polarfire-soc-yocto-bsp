@@ -68,6 +68,15 @@ for i in "${!MTD_NAME_ARRAY[@]}"; do
         mount -t ubifs $UBI_DEV:$VOL_NAME "$MOUNT_POINT"
     fi
 
+    if [ -r "/proc/${MTD_NAME}/poll_mode" ]; then
+        log "poll_mode before = $(cat /proc/${MTD_NAME}/poll_mode)"
+
+        echo 0 > "/proc/${MTD_NAME}/poll_mode"
+
+        log "poll_mode after = $(cat /proc/${MTD_NAME}/poll_mode)"
+    fi
+
+
     log "$MTD_NAME $VOL_NAME $MOUNT_POINT Done"
 done
 
