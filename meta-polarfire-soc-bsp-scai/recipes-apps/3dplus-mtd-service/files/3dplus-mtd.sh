@@ -20,6 +20,10 @@ find_ubi() {
     return 1
 }
 
+log "Loading iwave_nand.ko ... "
+modprobe iwave_nand
+log "Done."
+
 for i in "${!MTD_NAME_ARRAY[@]}"; do
     MTD_NAME="${MTD_NAME_ARRAY[$i]}"
     VOL_NAME="${VOL_NAME_ARRAY[$i]}"
