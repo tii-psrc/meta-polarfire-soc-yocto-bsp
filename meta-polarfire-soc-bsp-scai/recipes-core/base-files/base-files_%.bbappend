@@ -6,7 +6,7 @@ SRC_URI:append:icicle-kit-es-nand = " file://issue-scai"
 
 
 # NAVC
-FILESEXTRAPATHS:prepend:scai-navc := "${THISDIR}/${PN}/growfs:"
+#FILESEXTRAPATHS:prepend:scai-navc := "${THISDIR}/${PN}/growfs:"
 FILESEXTRAPATHS:prepend:scai-navc := "${THISDIR}/${PN}/scai-navc:"
 SRC_URI:append:scai-navc = " file://issue-scai"
 
@@ -14,15 +14,22 @@ SRC_URI:append:scai-navc = " file://issue-scai"
 #    install -m 0644 ${WORKDIR}/issue ${D}${sysconfdir}/issue
 #}
 
+do_install:append:scai-navc() {
+	rm -f ${D}${sysconfdir}/fstab
+}
 
 # DPU
-FILESEXTRAPATHS:prepend:scai-dpu := "${THISDIR}/${PN}/growfs:"
+#FILESEXTRAPATHS:prepend:scai-dpu := "${THISDIR}/${PN}/growfs:"
 FILESEXTRAPATHS:prepend:scai-dpu := "${THISDIR}/${PN}/scai-dpu:"
 SRC_URI:append:scai-dpu = " file://issue-scai"
 
 #do_install:append:scai-dpu () {
 #    install -m 0644 ${WORKDIR}/issue ${D}${sysconfdir}/issue
 #}
+
+do_install:append:scai-dpu() {
+	rm -f ${D}${sysconfdir}/fstab
+}
 
 
 # QEMU
