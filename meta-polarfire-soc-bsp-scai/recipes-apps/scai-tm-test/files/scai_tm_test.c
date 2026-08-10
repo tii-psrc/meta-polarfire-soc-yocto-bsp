@@ -53,13 +53,19 @@ struct telemetry_data {
 };
 
 struct user_data {
-	unsigned long arg1;
+	unsigned long arg0;
 	long size;
 	void *buf;
 };
 
 enum {
 	SBI_EXT_TELEMETRY_RPROC_COMMAND = 0x14,
+};
+
+enum sbi_tm_ext_cmd {
+	SBI_TM_EXT_CONCISE = 0x0,
+	SBI_TM_EXT_VERBOSE = 0x1,
+	SBI_TM_EXT_STOP_PUBLISHING = 0x2,
 };
 
 static void print_tm_data(struct telemetry_data *tm_data)
@@ -160,18 +166,26 @@ int main(int argc, char *argv[])
 
 	if (argc != 3) {
 		fprintf(stderr,
-				"Usage: %s /dev/scai_tm_rproc <arg1 - concise(0) or verbose(1)>\n",
+				"Usage: %s /dev/scai_tm_rproc <mode>\n"
+				"  mode:\n"
+				"    0 - concise output\n"
+				"    1 - verbose output\n"
+				"    2 - stop HSS services\n",
 				argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	dev = argv[1];
-	user_data.arg1 = strtoul(argv[2], NULL, 0);
+	user_data.arg0 = strtoul(argv[2], NULL, 0);
 
-	if (user_data.arg1 > 1) {
+	if (user_data.arg0 < 0 || user_data.arg0 > 2) {
 		fprintf(stderr,
-				"There is no handler for arg1(%d)\n",
-				user_data.arg1);
+				"Invalid mode: %d\n"
+				"Supported modes:\n"
+				"  0 - concise\n"
+				"  1 - verbose\n"
+				"  2 - stop HSS services\n",
+				user_data.arg0);
 		return EXIT_FAILURE;
 	}
 
@@ -187,13 +201,14 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 
-	user_data.size = TM_BUFFER_SIZE;
-	user_data.buf = buffer;
+	if (user_data.arg0 == SBI_TM_EXT_CONCISE ||
+			user_data.arg0 == SBI_TM_EXT_VERBOSE) {
+		user_data.size = TM_BUFFER_SIZE;
+		user_data.buf = buffer;
+	}
 
 	printf("Request\n");
-	printf("  arg1 : %ld(%s)\n", user_data.arg1,
-			user_data.arg1 == 0 ? (const char *)"concise" :
-			(const char*)"verbose");
+	printf("  arg0 : %ld\n", user_data.arg0);
 	printf("  size : %ld bytes\n", user_data.size);
 	printf("  buf  : %p\n", user_data.buf);
 
@@ -205,7 +220,7 @@ int main(int argc, char *argv[])
 	printf("\nResult\n");
 	printf("  size : %ld bytes\n", user_data.size);
 	printf("----------------------------------------\n");
-	if (user_data.arg1) {
+	if (user_data.arg0) {
 		printf("%s", buffer);
 	} else {
 		p_tm_data = (struct telemetry_data *)user_data.buf;
