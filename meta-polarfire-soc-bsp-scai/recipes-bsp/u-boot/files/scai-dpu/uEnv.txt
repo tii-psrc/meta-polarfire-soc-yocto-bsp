@@ -3,7 +3,7 @@ baudrate=921600
 board=scai_dpu
 board_name=scai_dpu
 bootargs_base=earlycon console=ttyS1,921600n8 uio_pdrv_genirq.of_id=generic-uio root=ubi0:rootfs rootfstype=ubifs rootwait rw
-set_bootargs=setenv bootargs ${bootargs_base} ubi.mtd=ubi_${active_slot}
+set_bootargs=setenv bootargs ${bootargs_base} ubi.mtd=ubi_${active_slot} boot_device=${boot_device}
 bootdelay=2
 bootm_size=0x10000000
 cpu=mpfs
