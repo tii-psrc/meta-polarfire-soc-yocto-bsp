@@ -1,0 +1,15 @@
+[Unit]
+Description=SCAI Boot Count Logger.
+
+DefaultDependencies=no
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/scai_boot_count /opt/scai_mtd_a shared mtd_a
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
