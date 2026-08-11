@@ -3,7 +3,7 @@ set -eu
 
 MTD_NAME_ARRAY=("iWave_nand.68000000" "iWave_nand.68800000")
 VOL_NAME_ARRAY=("3dplus_mtd_a" "3dplus_mtd_b")
-MOUNT_POINT_ARRAY=("/opt/3dplus_mtd_a" "/opt/3dplus_mtd_b")
+MOUNT_POINT_ARRAY=("/opt/scai_mtd_a" "/opt/scai_mtd_b")
 
 log() {
     echo "[3dplus-mtd] $*"
