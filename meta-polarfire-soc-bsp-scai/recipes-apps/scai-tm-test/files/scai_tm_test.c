@@ -65,7 +65,7 @@ enum {
 enum sbi_tm_ext_cmd {
 	SBI_TM_EXT_CONCISE = 0x0,
 	SBI_TM_EXT_VERBOSE = 0x1,
-	SBI_TM_EXT_STOP_PUBLISHING = 0x2,
+	SBI_TM_EXT_STOP_SERVICE = 0x2,
 };
 
 static void print_tm_data(struct telemetry_data *tm_data)
@@ -164,20 +164,22 @@ int main(int argc, char *argv[])
 	int fd = -1;
 	int ret = EXIT_FAILURE;
 
-	if (argc != 3) {
+	if (argc < 3 || argc > 4) {
 		fprintf(stderr,
-				"Usage: %s /dev/scai_tm_rproc <mode>\n"
+				"Usage: %s /dev/scai_tm_rproc <mode> <stop_service>\n"
 				"  mode:\n"
 				"    0 - concise output\n"
 				"    1 - verbose output\n"
 				"    2 - stop HSS services\n",
+				"  stop_service(if mode == 2)\n"
+				"    1 - stop telemetry publishing via UART @HSS\n"
+				"    2 - stop external watchdog pining @HSS\n",
 				argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	dev = argv[1];
 	user_data.arg0 = strtoul(argv[2], NULL, 0);
-
 	if (user_data.arg0 < 0 || user_data.arg0 > 2) {
 		fprintf(stderr,
 				"Invalid mode: %d\n"
@@ -187,6 +189,27 @@ int main(int argc, char *argv[])
 				"  2 - stop HSS services\n",
 				user_data.arg0);
 		return EXIT_FAILURE;
+	}
+
+	if (user_data.arg0 == SBI_TM_EXT_STOP_SERVICE) {
+		if (argc != 4) {
+			fprintf(stderr,
+					"No inserted for stop_service list\n"
+					"Supported stop services:\n"
+					"    1 - stop telemetry publishing via UART @HSS\n"
+					"    2 - stop external watchdog pining @HSS\n");
+			return EXIT_FAILURE;
+		}
+		user_data.size = strtol(argv[3], NULL, 0);
+		if (user_data.size < 1 || user_data.size > 2) {
+			fprintf(stderr,
+					"Invalid stop_service list: %d\n"
+					"Supported stop services:\n"
+					"    1 - stop telemetry publishing via UART @HSS\n"
+					"    2 - stop external watchdog pining @HSS\n",
+					user_data.size);
+			return EXIT_FAILURE;
+		}
 	}
 
 	fd = open(dev, O_RDWR);
@@ -220,9 +243,9 @@ int main(int argc, char *argv[])
 	printf("\nResult\n");
 	printf("  size : %ld bytes\n", user_data.size);
 	printf("----------------------------------------\n");
-	if (user_data.arg0) {
+	if (user_data.arg0 == SBI_TM_EXT_VERBOSE) {
 		printf("%s", buffer);
-	} else {
+	} else if (user_data.arg0 == SBI_TM_EXT_CONCISE) {
 		p_tm_data = (struct telemetry_data *)user_data.buf;
 		print_tm_data(p_tm_data);
 	}

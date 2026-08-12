@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <sys/ioctl.h>
 
 #ifdef DEBUG
 #define CMDLINE_PATH            "cmdline"
@@ -862,6 +864,63 @@ static int update_boot_count(const struct boot_count_context *ctx,
 	return 0;
 }
 
+enum {
+	SBI_EXT_TELEMETRY_RPROC_COMMAND = 0x14,
+};
+
+enum sbi_tm_ext_cmd {
+	SBI_TM_EXT_CONCISE = 0x0,
+	SBI_TM_EXT_VERBOSE = 0x1,
+	SBI_TM_EXT_STOP_SERVICE = 0x2,
+};
+
+enum sbi_tm_ext_services {
+	SBI_TM_EXT_STOP_NO_SERVICE = 0x0,
+	SBI_TM_EXT_STOP_PUBLISHING = 0x1,
+	SBI_TM_EXT_STOP_EXTERNAL_WDOG = 0x2,
+};
+
+struct user_data {
+	unsigned long arg0;
+	long arg1;
+	void *buf;
+};
+
+static int stop_telemetry_publish(void)
+{
+	const char *dev = "/dev/scai_tm_rproc";
+	struct user_data user_data = { 0 };
+	unsigned int cmd = SBI_EXT_TELEMETRY_RPROC_COMMAND;
+	int fd = -1;
+	int ret = 0;
+
+	fd = open(dev, O_RDWR);
+	if (fd < 0) {
+		perror("/dev/scai_tm_rproc open failed ...");
+		ret = -1;
+		return ret;
+	}
+
+	user_data.arg0 = SBI_TM_EXT_STOP_SERVICE;
+	user_data.arg1 = SBI_TM_EXT_STOP_PUBLISHING;
+
+	printf("Call ioctl:\n");
+	printf("    user_data.arg0 : %d\n", user_data.arg0);
+	printf("    user_data.arg1 : %d\n", user_data.arg1);
+
+	if (ioctl(fd, cmd, &user_data) < 0) {
+		perror("ioctl failed ...");
+		ret = -1;
+		goto out;
+	}
+
+out:
+	if (fd >= 0)
+		close(fd);
+
+	return ret;
+}
+
 /*
  * --------------------------------------------------------------------------
  * Main
@@ -1021,6 +1080,9 @@ int main(int argc, char *argv[])
 	if (ret != 0)
 		goto failed;
 
+	if (!ctx.is_shared_device) {
+		stop_telemetry_publish();
+	}
 	/*
 	 * ----------------------------------------------------------------------
 	 * Update completed.
