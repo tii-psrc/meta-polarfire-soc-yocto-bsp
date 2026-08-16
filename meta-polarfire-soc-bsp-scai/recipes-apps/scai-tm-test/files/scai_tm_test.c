@@ -50,6 +50,7 @@ struct telemetry_data {
 	int32_t sanity_check_3_3_mA;
 	int32_t sanity_check_sddr_vtt;
 	int32_t sanity_check_fddr_vtt;
+	int32_t edac_cnt_ddrc;
 };
 
 struct user_data {
@@ -152,6 +153,8 @@ static void print_tm_data(struct telemetry_data *tm_data)
 			tm_data->sanity_check_sddr_vtt);
 	printf("tm_data->sanity_check_fddr_vtt         : %d\r\n",
 			tm_data->sanity_check_fddr_vtt);
+	printf("tm_data->edac_cnt_ddrc                 : %d\r\n",
+			tm_data->edac_cnt_ddrc);
 }
 
 int main(int argc, char *argv[])
