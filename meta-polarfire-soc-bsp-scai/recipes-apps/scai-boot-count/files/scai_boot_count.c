@@ -28,6 +28,13 @@
 #define STATUS_DIR              "/run/boot-count"
 
 /*
+ * Scratch buffer for the single telemetry request issued at the end of the
+ * run. Only the side effect of the request matters, so it just has to be
+ * large enough not to truncate a concise telemetry payload.
+ */
+#define TM_BUFFER_SIZE          4096
+
+/*
  * --------------------------------------------------------------------------
  * Device ID
  * --------------------------------------------------------------------------
@@ -923,6 +930,69 @@ out:
 
 /*
  * --------------------------------------------------------------------------
+ * Hand the external watchdog over to FSW
+ * --------------------------------------------------------------------------
+ *
+ * A telemetry data request (SBI_TM_EXT_CONCISE / SBI_TM_EXT_VERBOSE) makes
+ * HSS stop pinging the external watchdog on its own and ping it once on
+ * behalf of the caller. From that point on the watchdog is serviced only by
+ * telemetry requests coming from Linux.
+ *
+ * This request is issued once, at the very end of the boot count service, so
+ * that FSW - which comes up right after it - takes the servicing over with
+ * its own periodic telemetry requests before the external watchdog expires.
+ *
+ * The telemetry payload is not used here, only the side effect. The driver
+ * copies min(HSS payload, user_data.arg1) bytes, so the local buffer cannot
+ * be overrun.
+ */
+static int handover_external_wdog(void)
+{
+	const char *dev = "/dev/scai_tm_rproc";
+	struct user_data user_data = { 0 };
+	unsigned int cmd = SBI_EXT_TELEMETRY_RPROC_COMMAND;
+	uint8_t buffer[TM_BUFFER_SIZE];
+	int fd = -1;
+	int ret = 0;
+
+	fd = open(dev, O_RDWR);
+	if (fd < 0) {
+		perror("/dev/scai_tm_rproc open failed ...");
+		ret = -1;
+		return ret;
+	}
+
+	/*
+	 * For the data commands arg1 is the caller buffer size, and the
+	 * driver writes the number of copied bytes back into it.
+	 */
+	user_data.arg0 = SBI_TM_EXT_CONCISE;
+	user_data.arg1 = (long)sizeof(buffer);
+	user_data.buf = buffer;
+
+	printf("Call ioctl (external watchdog handover):\n");
+	printf("    user_data.arg0 : %lu\n", user_data.arg0);
+	printf("    user_data.arg1 : %ld\n", user_data.arg1);
+
+	if (ioctl(fd, cmd, &user_data) < 0) {
+		perror("ioctl failed ...");
+		ret = -1;
+		goto out;
+	}
+
+	printf("External watchdog handed over to FSW "
+			"(%ld telemetry bytes returned)\n",
+			user_data.arg1);
+
+out:
+	if (fd >= 0)
+		close(fd);
+
+	return ret;
+}
+
+/*
+ * --------------------------------------------------------------------------
  * Main
  * --------------------------------------------------------------------------
  *
@@ -1101,6 +1171,21 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Boot count update completed successfully.\n");
+
+	/*
+	 * Last action of the service: HSS stops servicing the external
+	 * watchdog here and FSW has to take over with its own telemetry
+	 * requests before the watchdog expires.
+	 */
+	if (!ctx.is_shared_device) {
+		if (handover_external_wdog() != 0) {
+			fprintf(stderr,
+					"Failed to hand the external watchdog "
+					"over to FSW\n");
+
+			return EXIT_FAILURE;
+		}
+	}
 
 	return EXIT_SUCCESS;
 
