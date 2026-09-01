@@ -583,8 +583,19 @@ static int parse_cmdline(enum device_id *device)
 	printf("boot_device : %s\n", boot_device);
 
 	if (!found_ubi || !found_boot_device) {
+		if (!found_ubi)
+			fprintf(stderr,
+					"Missing kernel command line parameter: "
+					"ubi.mtd\n");
+
+		if (!found_boot_device)
+			fprintf(stderr,
+					"Missing kernel command line parameter: "
+					"boot_device\n");
+
 		fprintf(stderr,
-				"Required boot parameters are missing\n");
+				"Boot device cannot be identified, "
+				"refusing to guess. Boot count not updated.\n");
 
 		return -EINVAL;
 	}
@@ -599,8 +610,14 @@ static int parse_cmdline(enum device_id *device)
 			*device = RED_FPGA_W25;
 		} else {
 			fprintf(stderr,
-					"Invalid boot_device: %s\n",
+					"Invalid boot_device: '%s' "
+					"(expected 'nom' or 'red')\n",
 					boot_device);
+			fprintf(stderr,
+					"U-Boot could not identify the side. Check "
+					"CONFIG_SERVICE_BOOT_DEVICE_NAME in the HSS "
+					"build for this board. Boot count not "
+					"updated.\n");
 
 			return -EINVAL;
 		}
@@ -615,15 +632,23 @@ static int parse_cmdline(enum device_id *device)
 			*device = RED_MSS_W25;
 		} else {
 			fprintf(stderr,
-					"Invalid boot_device: %s\n",
+					"Invalid boot_device: '%s' "
+					"(expected 'nom' or 'red')\n",
 					boot_device);
+			fprintf(stderr,
+					"U-Boot could not identify the side. Check "
+					"CONFIG_SERVICE_BOOT_DEVICE_NAME in the HSS "
+					"build for this board. Boot count not "
+					"updated.\n");
 
 			return -EINVAL;
 		}
 
 	} else {
 		fprintf(stderr,
-				"Invalid ubi.mtd: %s\n",
+				"Invalid ubi.mtd: '%s' "
+				"(expected 'ubi_a' or 'ubi_b'). "
+				"Boot count not updated.\n",
 				ubi_mtd);
 
 		return -EINVAL;
