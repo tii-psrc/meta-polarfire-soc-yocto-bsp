@@ -1016,6 +1016,33 @@ out:
 
 /*
  * --------------------------------------------------------------------------
+ * Tell HSS that Linux is up
+ * --------------------------------------------------------------------------
+ *
+ * On this ecall HSS publishes HSS_BOOT_BS_LINUX_BOOT_SUCEEDED - the final boot
+ * status - and stops its own boot telemetry.
+ *
+ * This is deliberately independent of whether the boot counter could be
+ * updated. Reaching this point means Linux booted, which is exactly what the
+ * message reports; a counter that could not be written is a separate fault and
+ * must not suppress it.
+ *
+ * Only the local (rootfs) instance sends it, so it goes out once per boot.
+ */
+static void notify_hss_linux_booted(const struct boot_count_context *ctx)
+{
+	if (!ctx || ctx->is_shared_device)
+		return;
+
+	if (stop_telemetry_publish() != 0) {
+		fprintf(stderr,
+				"Failed to tell HSS that Linux booted: "
+				"LINUX_BOOT_SUCEEDED will not be published\n");
+	}
+}
+
+/*
+ * --------------------------------------------------------------------------
  * Main
  * --------------------------------------------------------------------------
  *
@@ -1133,9 +1160,7 @@ int main(int argc, char *argv[])
 				"Mount is not ready: %s\n",
 				ctx.mount_point);
 
-		write_status(&ctx, "FAILED");
-
-		return EXIT_FAILURE;
+		goto failed;
 	}
 
 	/*
@@ -1150,7 +1175,7 @@ int main(int argc, char *argv[])
 				"Failed to write UPDATING status: %d\n",
 				ret);
 
-		return EXIT_FAILURE;
+		goto failed;
 	}
 
 	/*
@@ -1173,9 +1198,6 @@ int main(int argc, char *argv[])
 	if (ret != 0)
 		goto failed;
 
-	if (!ctx.is_shared_device) {
-		stop_telemetry_publish();
-	}
 	/*
 	 * ----------------------------------------------------------------------
 	 * Update completed.
@@ -1190,10 +1212,16 @@ int main(int argc, char *argv[])
 				"Failed to write READY status: %d\n",
 				ret);
 
-		return EXIT_FAILURE;
+		goto failed;
 	}
 
 	printf("Boot count update completed successfully.\n");
+
+	/*
+	 * Linux is up. This is independent of the counter update above, but on
+	 * the success path there is nothing to report first.
+	 */
+	notify_hss_linux_booted(&ctx);
 
 	/*
 	 * Last action of the service: HSS stops servicing the external
@@ -1221,6 +1249,13 @@ failed:
 		fprintf(stderr,
 				"Failed to write FAILED status\n");
 	}
+
+	/*
+	 * The boot count could not be updated, but Linux still booted, so HSS is
+	 * told either way. Without this the final boot status would be lost
+	 * whenever this service failed for an unrelated reason.
+	 */
+	notify_hss_linux_booted(&ctx);
 
 	return EXIT_FAILURE;
 }
