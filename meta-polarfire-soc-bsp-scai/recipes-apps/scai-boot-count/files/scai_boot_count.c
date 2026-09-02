@@ -850,19 +850,17 @@ static int update_boot_count(const struct boot_count_context *ctx,
 		return ret;
 
 	/*
-	 * Do not allow uint8_t wrap-around:
-	 *
-	 *     255 -> 0
+	 * Counters are uint8_t, so they wrap. Wrap to 1 rather than 0 so that a
+	 * wrapped counter is never mistaken for a device that has never booted.
 	 */
 	if (count.boot_device[device] == UINT8_MAX) {
-		fprintf(stderr,
-				"Boot count overflow: %s\n",
+		printf("Boot count wrapped: %s (255 -> 1)\n",
 				device_id_name(device));
 
-		return -ERANGE;
+		count.boot_device[device] = 1;
+	} else {
+		count.boot_device[device]++;
 	}
-
-	count.boot_device[device]++;
 
 	/*
 	 * last_device exists only in shared storage.
